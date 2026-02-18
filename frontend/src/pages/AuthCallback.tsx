@@ -1,25 +1,33 @@
 import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { client } from '@/lib/api';
+import { authApi } from '@/lib/auth';
+import { getAPIBaseURL } from '@/lib/config';
 import { Building2 } from 'lucide-react';
 
 export default function AuthCallback() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const tokenFromUrl = searchParams.get('token');
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        // Process the OIDC callback
+        if (tokenFromUrl) {
+          authApi.setToken(tokenFromUrl);
+          const res = await fetch(`${getAPIBaseURL()}/api/v1/entities/user_profiles?limit=1`, {
+            headers: { Authorization: `Bearer ${tokenFromUrl}` },
+          });
+          const data = await res.json();
+          const hasProfile = data?.items?.length > 0;
+          navigate(hasProfile ? '/dashboard' : '/profile-setup');
+          return;
+        }
         await client.auth.login();
-        
-        // Check if user has a profile
         const profileResponse = await client.entities.user_profiles.query({ limit: 1 });
-        
         if (profileResponse.data?.items?.length > 0) {
-          // User has profile, go to dashboard
           navigate('/dashboard');
         } else {
-          // New user, go to profile setup
           navigate('/profile-setup');
         }
       } catch (error) {
@@ -29,7 +37,7 @@ export default function AuthCallback() {
     };
 
     handleCallback();
-  }, [navigate]);
+  }, [navigate, tokenFromUrl]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">

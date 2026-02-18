@@ -8,8 +8,6 @@ import {
   CheckCircle,
   Truck,
   Shield,
-  Phone,
-  Mail,
   MapPin,
   Layers,
   Zap,
@@ -236,37 +234,17 @@ export default function Materials() {
             >
               Solicitar Cotización
             </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="border-white text-white hover:bg-white/10"
-            >
-              <Phone className="w-4 h-4 mr-2" />
-              +57 300 123 4567
-            </Button>
           </div>
         </div>
       </section>
 
-      {/* Contact Info */}
+      {/* Ubicación */}
       <section className="py-12 bg-slate-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-3 gap-8 text-center">
-            <div className="flex flex-col items-center">
-              <Phone className="w-8 h-8 text-amber-400 mb-3" />
-              <h4 className="font-semibold mb-1">Teléfono</h4>
-              <p className="text-slate-400">+57 300 123 4567</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <Mail className="w-8 h-8 text-amber-400 mb-3" />
-              <h4 className="font-semibold mb-1">Email</h4>
-              <p className="text-slate-400">materiales@constructodo.com</p>
-            </div>
-            <div className="flex flex-col items-center">
-              <MapPin className="w-8 h-8 text-amber-400 mb-3" />
-              <h4 className="font-semibold mb-1">Ubicación</h4>
-              <p className="text-slate-400">Bogotá, Colombia</p>
-            </div>
+          <div className="flex flex-col items-center text-center">
+            <MapPin className="w-8 h-8 text-amber-400 mb-3" />
+            <h4 className="font-semibold mb-1">Ubicación</h4>
+            <p className="text-slate-400">Bogotá, Colombia</p>
           </div>
         </div>
       </section>

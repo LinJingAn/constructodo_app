@@ -1,0 +1,106 @@
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from 'react';
+import { authApi } from '../lib/auth';
+
+interface User {
+  id: string;
+  email: string;
+  name?: string;
+  role: string;
+  last_login?: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  error: string | null;
+  login: () => Promise<void>;
+  logout: () => Promise<void>;
+  refetch: () => Promise<void>;
+  isAdmin: boolean;
+}
+
+const defaultAuthValue: AuthContextType = {
+  user: null,
+  loading: false,
+  error: null,
+  login: async () => {},
+  logout: async () => {
+    try {
+      await authApi.logout();
+    } catch {
+      // no-op
+    }
+  },
+  refetch: async () => {},
+  isAdmin: false,
+};
+
+const AuthContext = createContext<AuthContextType>(defaultAuthValue);
+
+export const useAuth = () => useContext(AuthContext);
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const checkAuthStatus = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const userData = await authApi.getCurrentUser();
+      setUser(userData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred');
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const login = async () => {
+    try {
+      setError(null);
+      await authApi.login();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Login failed');
+    }
+  };
+
+  const logout = async () => {
+    try {
+      setError(null);
+      await authApi.logout();
+      setUser(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Logout failed');
+      setUser(null);
+    }
+  };
+
+  useEffect(() => {
+    checkAuthStatus();
+  }, []);
+
+  const value: AuthContextType = {
+    user,
+    loading,
+    error,
+    login,
+    logout,
+    refetch: checkAuthStatus,
+    isAdmin: user?.role === 'admin',
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};

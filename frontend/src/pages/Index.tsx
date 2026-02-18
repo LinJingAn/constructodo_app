@@ -431,17 +431,22 @@ export default function LandingPage() {
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-14">
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg ring-1 ring-slate-200/50">
+            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg ring-1 ring-slate-200/50 bg-slate-200">
               <img
-                src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&auto=format&fit=crop"
-                alt="Profesional de construcción trabajando"
+                src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=600&auto=format&fit=crop"
+                alt="Proyecto de construcción"
                 className="absolute inset-0 w-full h-full object-cover"
+                onError={(e) => {
+                  const t = e.currentTarget;
+                  t.onerror = null;
+                  t.src = 'https://picsum.photos/600/400?random=1';
+                }}
               />
             </div>
             <div className="relative aspect-[4/3] rounded-2xl overflow-hidden shadow-lg ring-1 ring-slate-200/50">
               <img
-                src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=600&auto=format&fit=crop"
-                alt="Obra en construcción"
+                src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=600&auto=format&fit=crop"
+                alt="Edificio y construcción profesional"
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>

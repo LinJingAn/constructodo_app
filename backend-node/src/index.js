@@ -34,6 +34,11 @@ app.get('/health', (req, res) => {
   res.json({ status: 'healthy' });
 });
 
+app.get('/api/config', (req, res) => {
+  const publicUrl = process.env.BACKEND_URL || `${req.protocol}://${req.get('host')}`;
+  res.json({ API_BASE_URL: publicUrl });
+});
+
 app.use(healthRouter);
 app.use(authRouter);
 app.use(usersRouter);

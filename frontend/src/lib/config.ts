@@ -8,7 +8,7 @@ let configLoading = true;
 
 // Default fallback configuration
 const defaultConfig = {
-  API_BASE_URL: process.env.VITE_API_BASE_URL || 'http://157.230.219.162:8000',
+  API_BASE_URL: import.meta.env.VITE_API_BASE_URL || 'https://constructodo.tech',
 };
 
 // Function to load runtime configuration
@@ -74,7 +74,8 @@ export function getConfig() {
 
 // Dynamic API_BASE_URL getter - this will always return the current config
 export function getAPIBaseURL(): string {
-  return getConfig().API_BASE_URL;
+  const url = getConfig().API_BASE_URL;
+  return typeof url === 'string' ? url.replace(/\/+$/, '') : url;
 }
 
 // For backward compatibility, but this should be avoided

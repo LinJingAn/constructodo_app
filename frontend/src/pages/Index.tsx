@@ -28,7 +28,7 @@ import { client } from '@/lib/api';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '573001234567';
+const WHATSAPP_NUMBER = import.meta.env.VITE_WHATSAPP_NUMBER || '17869457083';
 
 export default function LandingPage() {
   const navigate = useNavigate();

@@ -16,13 +16,17 @@ const JWT_SECRET = process.env.JWT_SECRET_KEY || '';
 const JWT_EXPIRE_MINUTES = parseInt(process.env.JWT_EXPIRE_MINUTES || '60', 10);
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 
+/** Strip trailing slashes so path concatenation doesn't produce //path */
+function stripTrailingSlash(url) {
+  return typeof url === 'string' ? url.replace(/\/+$/, '') : url;
+}
 /** Backend public URL (for OAuth redirect_uri etc). Set BACKEND_URL on VPS. */
 function getBackendBaseUrl() {
-  return process.env.BACKEND_URL || `http://127.0.0.1:${process.env.PORT || 8000}`;
+  return stripTrailingSlash(process.env.BACKEND_URL || `http://127.0.0.1:${process.env.PORT || 8000}`);
 }
 /** Frontend origin (for redirects after login/logout). Set FRONTEND_URL on VPS. */
 function getFrontendUrl() {
-  return process.env.FRONTEND_URL || process.env.BACKEND_URL || 'http://localhost:5173';
+  return stripTrailingSlash(process.env.FRONTEND_URL || process.env.BACKEND_URL || 'http://localhost:5173');
 }
 
 function issueToken(user) {

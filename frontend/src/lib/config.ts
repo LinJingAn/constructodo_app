@@ -8,8 +8,7 @@ let configLoading = true;
 
 // Default fallback configuration
 const defaultConfig = {
-  API_BASE_URL: 'http://127.0.0.1:8000',
-  // API_BASE_URL: 'http://146.190.35.96:5000', // Only used if runtime config fails to load
+  API_BASE_URL: 'http://157.230.219.162:8000',
 };
 
 // Function to load runtime configuration

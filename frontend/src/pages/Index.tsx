@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
@@ -280,23 +280,23 @@ export default function LandingPage() {
   return (
     <div ref={scopeRef} className="min-h-screen bg-slate-50/80 antialiased">
       {/* Header */}
-      <header className="lp-header fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
+      <header className="lp-header fixed top-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 lg:h-[4.25rem]">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-sm ring-1 ring-black/5">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <span className="text-xl font-bold tracking-tight text-slate-900">CONSTRUCTODO</span>
             </div>
-            <nav className="hidden md:flex items-center gap-8">
-              <a href="#servicios" className="text-sm font-medium text-slate-600 hover:text-amber-600 transition-colors">
+            <nav className="hidden md:flex items-center gap-9">
+              <a href="#servicios" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors py-2 border-b-2 border-transparent hover:border-amber-500/50">
                 Servicios
               </a>
-              <a href="#como-funciona" className="text-sm font-medium text-slate-600 hover:text-amber-600 transition-colors">
+              <a href="#como-funciona" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors py-2 border-b-2 border-transparent hover:border-amber-500/50">
                 Cómo Funciona
               </a>
-              <a href="#materiales" className="text-sm font-medium text-slate-600 hover:text-amber-600 transition-colors">
+              <a href="#materiales" className="text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors py-2 border-b-2 border-transparent hover:border-amber-500/50">
                 Materiales
               </a>
             </nav>
@@ -345,19 +345,16 @@ export default function LandingPage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             <div className="text-center lg:text-left">
-              <Badge className="hero-badge bg-amber-500/15 text-amber-400 border border-amber-500/30 px-3 py-1 text-xs font-medium tracking-wide mb-6">
-                <Building2 className="w-3.5 h-3.5 mr-1.5 inline" />
-                Plataforma de Construcción #1
+              <Badge className="hero-badge bg-white/10 text-slate-200 border border-white/20 px-3.5 py-1.5 text-xs font-medium tracking-widest uppercase mb-6">
+                <Building2 className="w-3.5 h-3.5 mr-2 inline opacity-90" />
+                Plataforma profesional
               </Badge>
-              <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.1] tracking-tight">
-                Tu Proyecto de
-                <span className="text-amber-400"> Construcción</span>
-                <br />
-                Garantizado
+              <h1 className="hero-title text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-[1.08] tracking-tight">
+                Tu proyecto de construcción,
+                <span className="text-amber-400"> garantizado</span>
               </h1>
-              <p className="hero-desc text-lg text-slate-300 mb-10 max-w-xl leading-relaxed">
-                Conectamos clientes con los mejores profesionales de la construcción.
-                Tu obra protegida con nuestra garantía de entrega.
+              <p className="hero-desc text-lg sm:text-xl text-slate-300 mb-10 max-w-xl leading-relaxed">
+                Conectamos clientes con profesionales verificados. Tu inversión protegida por nuestra garantía de entrega y mediación legal.
               </p>
               <div className="hero-btns flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 {isLoggedIn ? (
@@ -406,15 +403,16 @@ export default function LandingPage() {
       </section>
 
       {/* Guarantee Banner */}
-      <section className="py-10 bg-gradient-to-r from-amber-500 to-amber-600 shadow-lg">
+      <section className="py-11 bg-gradient-to-r from-amber-500 via-amber-500 to-amber-600 shadow-md">
         <div className="lp-guarantee max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-center gap-6 text-white">
-            <div className="guarantee-shield w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center backdrop-blur-sm">
+            <div className="guarantee-shield w-16 h-16 rounded-2xl bg-white/15 flex items-center justify-center backdrop-blur-sm ring-1 ring-white/20">
               <Shield className="w-8 h-8" />
             </div>
             <div className="text-center md:text-left">
+              <p className="text-xs font-semibold text-amber-100/90 uppercase tracking-widest mb-1">Respaldo legal</p>
               <h3 className="text-xl font-bold tracking-tight">Garantía CONSTRUCTODO</h3>
-              <p className="text-amber-100/95 text-base mt-1">
+              <p className="text-amber-100/95 text-base mt-1.5 max-w-2xl">
                 Tu inversión protegida, garantía legal y mediación profesional por tan solo el 4.5% de la cotización.
               </p>
             </div>
@@ -423,14 +421,15 @@ export default function LandingPage() {
       </section>
 
       {/* Services Section */}
-      <section id="servicios" className="py-20 lg:py-28">
+      <section id="servicios" className="py-20 lg:py-28 bg-white">
         <div className="lp-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
+            <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">Servicios</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
-              Servicios Disponibles
+              Especialidades disponibles
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Encuentra profesionales especializados en todo tipo de trabajos de construcción
+              Profesionales verificados en todas las áreas de la construcción y reforma
             </p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-14">
@@ -480,14 +479,15 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 lg:py-28 bg-white">
+      <section className="py-20 lg:py-28 bg-slate-50/60">
         <div className="lp-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
+            <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">Ventajas</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
-              ¿Por qué CONSTRUCTODO?
+              Por qué elegir CONSTRUCTODO
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              La plataforma más segura para gestionar tus proyectos de construcción
+              Seguridad, transparencia y respaldo legal para tu proyecto
             </p>
           </div>
           <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 mb-14 items-center">
@@ -534,14 +534,15 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section id="como-funciona" className="py-20 lg:py-28 bg-slate-50/80">
+      <section id="como-funciona" className="py-20 lg:py-28 bg-white">
         <div className="lp-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
+            <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">Proceso</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
-              ¿Cómo Funciona?
+              Cómo funciona
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              En solo 4 pasos, tu proyecto de construcción estará en marcha
+              Cuatro pasos para poner tu proyecto en marcha con total seguridad
             </p>
           </div>
           <div className="lp-reveal-stagger grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
@@ -568,16 +569,13 @@ export default function LandingPage() {
       </section>
 
       {/* Materials Section */}
-      <section id="materiales" className="py-20 lg:py-28 bg-white">
+      <section id="materiales" className="py-20 lg:py-28 bg-slate-50/60">
         <div className="lp-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-14 lg:gap-20 items-center">
             <div>
-              <Badge className="bg-amber-50 text-amber-700 border border-amber-200/80 mb-5 px-3 py-1 text-xs font-medium">
-                <ShoppingBag className="w-3.5 h-3.5 mr-1.5" />
-                Área de Materiales
-              </Badge>
+              <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">Materiales</p>
               <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-5 tracking-tight">
-                Materiales de las Mejores Marcas
+                Marcas líderes del sector
               </h2>
               <p className="text-lg text-slate-600 mb-6 leading-relaxed">
                 Trabajamos con las principales marcas del sector para garantizar
@@ -622,11 +620,12 @@ export default function LandingPage() {
       <section className="py-20 lg:py-28 bg-white">
         <div className="lp-reveal max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
+            <p className="text-xs font-semibold text-amber-600 uppercase tracking-widest mb-3">Testimonios</p>
             <h2 className="text-3xl lg:text-4xl font-bold text-slate-900 mb-4 tracking-tight">
               Lo que dicen nuestros clientes
             </h2>
             <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
-              Miles de proyectos realizados con la garantía CONSTRUCTODO
+              Proyectos entregados con la garantía y el respaldo CONSTRUCTODO
             </p>
           </div>
           <div className="grid md:grid-cols-3 gap-8">
@@ -650,7 +649,7 @@ export default function LandingPage() {
                 rating: 5,
               },
             ].map((t, i) => (
-              <Card key={i} className="border border-slate-200/80 rounded-2xl bg-slate-50/50 hover:shadow-lg transition-shadow">
+              <Card key={i} className="border border-slate-200/60 rounded-2xl bg-white shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-6 lg:p-7">
                   <Quote className="w-10 h-10 text-amber-500/60 mb-4" />
                   <p className="text-slate-700 mb-5 leading-relaxed">&ldquo;{t.quote}&rdquo;</p>
@@ -680,11 +679,12 @@ export default function LandingPage() {
           />
         </div>
         <div className="lp-reveal relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-xs font-semibold text-amber-400/90 uppercase tracking-widest mb-3">Únete hoy</p>
           <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4 tracking-tight">
-            ¿Listo para Comenzar tu Proyecto?
+            Listo para comenzar tu proyecto
           </h2>
           <p className="text-lg text-slate-300 mb-10 leading-relaxed">
-            Únete a miles de clientes satisfechos que han confiado en CONSTRUCTODO
+            Miles de clientes y profesionales confían en CONSTRUCTODO para sus obras
           </p>
           {isLoggedIn ? (
             <Button
@@ -748,38 +748,48 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="py-14 bg-slate-900 text-slate-400">
+      <footer className="py-16 bg-slate-900 text-slate-400">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid md:grid-cols-4 gap-10 lg:gap-12">
-            <div>
+            <div className="md:col-span-1">
               <div className="flex items-center gap-3 mb-5">
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-md">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-sm ring-1 ring-black/20">
                   <Building2 className="w-5 h-5 text-white" />
                 </div>
                 <span className="text-xl font-bold text-white tracking-tight">CONSTRUCTODO</span>
               </div>
-              <p className="text-sm text-slate-400 leading-relaxed">
-                La plataforma más segura para gestionar tus proyectos de construcción.
+              <p className="text-sm text-slate-400 leading-relaxed max-w-xs">
+                Plataforma profesional para gestionar proyectos de construcción con garantía y respaldo legal.
               </p>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4 text-sm tracking-wide uppercase">Para Clientes</h4>
+              <h4 className="font-semibold text-slate-300 mb-4 text-xs tracking-widest uppercase">Clientes</h4>
               <ul className="space-y-3 text-sm">
-                <li><a href="#como-funciona" className="hover:text-white transition-colors">Cómo Funciona</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Garantía</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Preguntas Frecuentes</a></li>
+                <li><a href="#como-funciona" className="hover:text-white transition-colors">Cómo funciona</a></li>
+                <li><a href="#servicios" className="hover:text-white transition-colors">Servicios</a></li>
+                <li><Link to="/materials" className="hover:text-white transition-colors">Materiales</Link></li>
               </ul>
             </div>
             <div>
-              <h4 className="font-semibold text-white mb-4 text-sm tracking-wide uppercase">Para Profesionales</h4>
+              <h4 className="font-semibold text-slate-300 mb-4 text-xs tracking-widest uppercase">Profesionales</h4>
               <ul className="space-y-3 text-sm">
-                <li><a href="#" className="hover:text-white transition-colors">Únete al Equipo</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Beneficios</a></li>
-                <li><a href="#" className="hover:text-white transition-colors">Soporte</a></li>
+                <li><Link to="/register" className="hover:text-white transition-colors">Registrarse</Link></li>
+                <li><a href="#servicios" className="hover:text-white transition-colors">Especialidades</a></li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-semibold text-slate-300 mb-4 text-xs tracking-widest uppercase">Legal</h4>
+              <ul className="space-y-3 text-sm">
+                <li><Link to="/privacy-policy" className="hover:text-white transition-colors">Política de Privacidad</Link></li>
+                <li><Link to="/terms-of-service" className="hover:text-white transition-colors">Términos de Servicio</Link></li>
               </ul>
             </div>
           </div>
-          <div className="border-t border-slate-800 mt-10 pt-8 text-center text-sm text-slate-500">
+          <div className="border-t border-slate-800 mt-12 pt-8 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-6 text-sm text-slate-500">
+            <Link to="/privacy-policy" className="hover:text-white transition-colors">Política de Privacidad</Link>
+            <span className="hidden sm:inline">·</span>
+            <Link to="/terms-of-service" className="hover:text-white transition-colors">Términos de Servicio</Link>
+            <span className="hidden sm:inline">·</span>
             <p>© 2026 CONSTRUCTODO. Todos los derechos reservados.</p>
           </div>
         </div>

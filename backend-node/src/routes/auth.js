@@ -16,6 +16,15 @@ const JWT_SECRET = process.env.JWT_SECRET_KEY || '';
 const JWT_EXPIRE_MINUTES = parseInt(process.env.JWT_EXPIRE_MINUTES || '60', 10);
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
 
+/** Backend public URL (for OAuth redirect_uri etc). Set BACKEND_URL on VPS. */
+function getBackendBaseUrl() {
+  return process.env.BACKEND_URL || `http://127.0.0.1:${process.env.PORT || 8000}`;
+}
+/** Frontend origin (for redirects after login/logout). Set FRONTEND_URL on VPS. */
+function getFrontendUrl() {
+  return process.env.FRONTEND_URL || process.env.BACKEND_URL || 'http://localhost:5173';
+}
+
 function issueToken(user) {
   const expiresAt = Math.floor(Date.now() / 1000) + JWT_EXPIRE_MINUTES * 60;
   const token = jwt.sign(
@@ -155,17 +164,15 @@ router.get('/api/v1/auth/me', requireAuth, (req, res) => {
 
 router.get('/api/v1/auth/login', (req, res) => {
   if (!GOOGLE_CLIENT_ID) {
-    const frontend = process.env.FRONTEND_URL || 'http://localhost:5173';
-    return res.redirect(302, `${frontend}/auth/error?msg=Google+OAuth+not+configured`);
+    return res.redirect(302, `${getFrontendUrl()}/auth/error?msg=Google+OAuth+not+configured`);
   }
-  const baseUrl = process.env.BACKEND_URL || `http://127.0.0.1:${process.env.PORT || 8000}`;
-  const redirectUri = baseUrl + '/api/v1/auth/callback';
+  const redirectUri = getBackendBaseUrl() + '/api/v1/auth/callback';
   const redirect = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${encodeURIComponent(GOOGLE_CLIENT_ID)}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=openid%20email%20profile`;
   res.redirect(302, redirect);
 });
 
 router.get('/api/v1/auth/callback', async (req, res) => {
-  const frontend = process.env.FRONTEND_URL || 'http://localhost:5173';
+  const frontend = getFrontendUrl();
   const { code, error: oauthError } = req.query || {};
   if (oauthError) {
     return res.redirect(302, `${frontend}/auth/error?msg=${encodeURIComponent(oauthError)}`);
@@ -176,8 +183,7 @@ router.get('/api/v1/auth/callback', async (req, res) => {
   if (!code || typeof code !== 'string') {
     return res.redirect(302, `${frontend}/auth/error?msg=No+authorization+code`);
   }
-  const baseUrl = process.env.BACKEND_URL || `http://127.0.0.1:${process.env.PORT || 8000}`;
-  const redirectUri = baseUrl + '/api/v1/auth/callback';
+  const redirectUri = getBackendBaseUrl() + '/api/v1/auth/callback';
   const oauth2Client = new OAuth2Client(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, redirectUri);
   try {
     const { tokens } = await oauth2Client.getToken(code);
@@ -223,8 +229,7 @@ router.get('/api/v1/auth/callback', async (req, res) => {
 });
 
 router.get('/api/v1/auth/logout', (req, res) => {
-  const frontend = process.env.FRONTEND_URL || 'http://localhost:5173';
-  res.json({ redirect_url: `${frontend}/` });
+  res.json({ redirect_url: `${getFrontendUrl()}/` });
 });
 
 export const authRouter = router;

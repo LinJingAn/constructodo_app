@@ -25,6 +25,10 @@ import Register from "./pages/Register";
 import AuthError from "./pages/AuthError";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import AdminDashboard from "./pages/AdminDashboard";
+import AdminUserManagement from "./pages/AdminUserManagement";
+import { PageViewTracker } from "./components/PageViewTracker";
 
 const queryClient = new QueryClient();
 
@@ -34,6 +38,7 @@ const App = () => (
       <Toaster />
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AuthProvider>
+          <PageViewTracker />
           <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
@@ -57,6 +62,8 @@ const App = () => (
           <Route path="/balance" element={<Balance />} />
           <Route path="/materials" element={<Materials />} />
           <Route path="/settings" element={<Settings />} />
+          <Route path="/admin" element={<ProtectedAdminRoute><AdminDashboard /></ProtectedAdminRoute>} />
+          <Route path="/admin/users" element={<ProtectedAdminRoute><AdminUserManagement /></ProtectedAdminRoute>} />
           </Routes>
         </AuthProvider>
       </BrowserRouter>

@@ -162,8 +162,25 @@ router.post('/api/v1/auth/token/exchange', async (req, res) => {
   return res.status(400).json({ detail: 'platform_token required' });
 });
 
-router.get('/api/v1/auth/me', requireAuth, (req, res) => {
-  res.json(req.user);
+/** GET /api/v1/auth/me - return current user; role is read from DB so admin changes apply without re-login */
+router.get('/api/v1/auth/me', requireAuth, async (req, res) => {
+  try {
+    const r = await query('SELECT id, email, name, role, last_login FROM users WHERE id = $1', [req.user.id]);
+    const row = r.rows[0];
+    if (!row) {
+      return res.status(401).json({ detail: 'User not found' });
+    }
+    res.json({
+      id: row.id,
+      email: row.email,
+      name: row.name,
+      role: row.role || 'user',
+      last_login: row.last_login ? new Date(row.last_login).toISOString() : null,
+    });
+  } catch (err) {
+    console.error('auth/me', err);
+    res.status(500).json({ detail: err.message || 'Failed to load user' });
+  }
 });
 
 router.get('/api/v1/auth/login', (req, res) => {

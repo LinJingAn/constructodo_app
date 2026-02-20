@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { query } from '../db.js';
 
 const JWT_SECRET = process.env.JWT_SECRET_KEY || '';
 const JWT_ALGORITHM = process.env.JWT_ALGORITHM || 'HS256';
@@ -58,10 +59,22 @@ export function requireAuth(req, res, next) {
 
 /**
  * Require admin role. Use after requireAuth.
+ * Loads role from DB so DB role updates apply without re-login.
  */
-export function requireAdmin(req, res, next) {
-  if (req.user?.role !== 'admin') {
+export async function requireAdmin(req, res, next) {
+  if (!req.user?.id) {
     return res.status(403).json({ detail: 'Admin access required' });
   }
-  next();
+  try {
+    const r = await query('SELECT role FROM users WHERE id = $1', [req.user.id]);
+    const role = r.rows[0]?.role || 'user';
+    req.user.role = role;
+    if (role !== 'admin') {
+      return res.status(403).json({ detail: 'Admin access required' });
+    }
+    next();
+  } catch (err) {
+    console.error('requireAdmin', err);
+    res.status(500).json({ detail: err.message || 'Failed to verify admin role' });
+  }
 }

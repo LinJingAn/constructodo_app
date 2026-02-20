@@ -280,6 +280,17 @@ export async function ensureTables() {
     );
   `);
   await query(`CREATE INDEX IF NOT EXISTS ix_withdrawals_user_id ON withdrawals (user_id);`);
+
+  await query(`
+    CREATE TABLE IF NOT EXISTS page_visits (
+      id SERIAL PRIMARY KEY,
+      path VARCHAR(512) NOT NULL,
+      user_id VARCHAR(255),
+      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    );
+  `);
+  await query(`CREATE INDEX IF NOT EXISTS ix_page_visits_path ON page_visits (path);`);
+  await query(`CREATE INDEX IF NOT EXISTS ix_page_visits_created_at ON page_visits (created_at);`);
 }
 
 export default pool;

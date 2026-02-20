@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/AuthContext';
 import { useUnreadChat } from '@/hooks/useUnreadChat';
 import {
   Home,
@@ -18,6 +19,8 @@ import {
   ChevronLeft,
   History,
   Wallet,
+  Shield,
+  UserCog,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -26,12 +29,15 @@ import { Separator } from '@/components/ui/separator';
 interface SidebarProps {
   userType: 'client' | 'professional';
   onLogout: () => void;
+  isAdmin?: boolean;
 }
 
-export function Sidebar({ userType, onLogout }: SidebarProps) {
+export function Sidebar({ userType, onLogout, isAdmin: isAdminProp }: SidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();
+  const { isAdmin: isAdminFromAuth } = useAuth();
+  const isAdmin = isAdminProp ?? isAdminFromAuth;
   const { total: unreadTotal } = useUnreadChat();
 
   const clientNavItems = [
@@ -84,6 +90,38 @@ export function Sidebar({ userType, onLogout }: SidebarProps) {
       {/* Navigation */}
       <ScrollArea className="flex-1 px-3 py-4">
         <nav className="space-y-1">
+          {isAdmin && (
+            <>
+              <Link
+                to="/admin"
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative",
+                  "hover:bg-slate-700/50",
+                  location.pathname === '/admin' && "bg-amber-500/20 text-amber-400 border-l-2 border-amber-400",
+                  location.pathname !== '/admin' && "text-slate-300",
+                  collapsed && "justify-center px-2"
+                )}
+              >
+                <Shield className={cn("w-5 h-5", location.pathname === '/admin' && "text-amber-400")} />
+                {!collapsed && <span className="font-medium">Panel Admin</span>}
+              </Link>
+              <Link
+                to="/admin/users"
+                onClick={() => setMobileOpen(false)}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 relative",
+                  "hover:bg-slate-700/50",
+                  location.pathname === '/admin/users' && "bg-amber-500/20 text-amber-400 border-l-2 border-amber-400",
+                  location.pathname !== '/admin/users' && "text-slate-300",
+                  collapsed && "justify-center px-2"
+                )}
+              >
+                <UserCog className={cn("w-5 h-5", location.pathname === '/admin/users' && "text-amber-400")} />
+                {!collapsed && <span className="font-medium">Gestión de usuarios</span>}
+              </Link>
+            </>
+          )}
           {navItems.map((item) => {
             const isActive = location.pathname === item.href;
             const showBadge =

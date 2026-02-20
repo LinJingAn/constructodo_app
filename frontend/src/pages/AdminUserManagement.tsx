@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserCog, RefreshCw } from 'lucide-react';
+import { UserCog, RefreshCw, Users, Mail, Shield, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { adminApi, type AdminUser } from '@/api/admin';
 import { toast } from 'sonner';
@@ -73,6 +73,7 @@ export default function AdminUserManagement() {
   return (
     <DashboardLayout userType="client" onLogout={handleLogout} isAdmin>
       <div className="space-y-6">
+        {/* Page header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl lg:text-3xl font-bold text-slate-800 flex items-center gap-2">
@@ -83,70 +84,123 @@ export default function AdminUserManagement() {
               Lista de clientes y profesionales. Cambia roles y conecta manualmente según necesites.
             </p>
           </div>
-          <Button variant="outline" size="sm" onClick={loadUsers} disabled={loading}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Recargar usuarios
-          </Button>
+          <div className="flex items-center gap-2">
+            <div className="hidden sm:flex items-center gap-2 rounded-lg bg-slate-100 px-3 py-1.5 text-sm font-medium text-slate-700">
+              <Users className="w-4 h-4" />
+              {usersTotal} usuarios
+            </div>
+            <Button variant="outline" size="sm" onClick={loadUsers} disabled={loading}>
+              <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Recargar
+            </Button>
+          </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Usuarios</CardTitle>
-            <CardDescription>
-              Total: {usersTotal}. Puedes cambiar el rol (usuario / admin).
-            </CardDescription>
+        <Card className="border-slate-200 shadow-sm overflow-hidden">
+          <CardHeader className="border-b bg-slate-50/50 pb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Mail className="w-5 h-5 text-slate-500" />
+                  Listado de usuarios
+                </CardTitle>
+                <CardDescription className="mt-0.5">
+                  Cambia el rol (Usuario / Admin) con el selector de cada fila.
+                </CardDescription>
+              </div>
+              <Badge variant="secondary" className="w-fit text-sm font-normal">
+                Total: {usersTotal}
+              </Badge>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             {loading ? (
-              <Skeleton className="h-64 w-full" />
+              <div className="p-6">
+                <Skeleton className="h-64 w-full rounded-lg" />
+              </div>
+            ) : users.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
+                <Users className="w-12 h-12 text-slate-300 mb-3" />
+                <p className="text-slate-500 font-medium">No hay usuarios registrados</p>
+                <p className="text-slate-400 text-sm mt-1">Los usuarios aparecerán aquí al registrarse.</p>
+              </div>
             ) : (
-              <div className="rounded-md border overflow-x-auto">
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
-                    <TableRow>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Nombre</TableHead>
-                      <TableHead>Tipo</TableHead>
-                      <TableHead>Nombre perfil</TableHead>
-                      <TableHead>WhatsApp</TableHead>
-                      <TableHead>Rol</TableHead>
-                      <TableHead>Último acceso</TableHead>
-                      <TableHead className="w-[140px]">Acciones</TableHead>
+                    <TableRow className="bg-slate-50/80 hover:bg-slate-50/80 border-b">
+                      <TableHead className="font-semibold text-slate-700">Email</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Nombre</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Tipo</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Nombre perfil</TableHead>
+                      <TableHead className="font-semibold text-slate-700">WhatsApp</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Rol</TableHead>
+                      <TableHead className="font-semibold text-slate-700">Último acceso</TableHead>
+                      <TableHead className="font-semibold text-slate-700 w-[160px] text-right">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {users.map((u) => (
-                      <TableRow key={u.id}>
-                        <TableCell className="font-medium">{u.email}</TableCell>
-                        <TableCell>{u.name || '—'}</TableCell>
+                    {users.map((u, i) => (
+                      <TableRow
+                        key={u.id}
+                        className={`border-b transition-colors hover:bg-amber-50/50 ${
+                          i % 2 === 1 ? 'bg-slate-50/30' : ''
+                        }`}
+                      >
+                        <TableCell className="font-mono text-sm text-slate-800">{u.email}</TableCell>
+                        <TableCell className="text-slate-700">{u.name || '—'}</TableCell>
                         <TableCell>
                           {u.user_type ? (
-                            <Badge variant={u.user_type === 'professional' ? 'default' : 'secondary'}>
+                            <Badge
+                              variant="outline"
+                              className={
+                                u.user_type === 'professional'
+                                  ? 'border-amber-300 bg-amber-50 text-amber-800'
+                                  : 'border-blue-300 bg-blue-50 text-blue-800'
+                              }
+                            >
                               {u.user_type === 'professional' ? 'Profesional' : 'Cliente'}
                             </Badge>
                           ) : (
-                            <span className="text-slate-400">—</span>
+                            <span className="text-slate-400 text-sm">—</span>
                           )}
                         </TableCell>
-                        <TableCell>{u.profile_full_name || '—'}</TableCell>
-                        <TableCell>{u.whatsapp || '—'}</TableCell>
+                        <TableCell className="text-slate-600">{u.profile_full_name || '—'}</TableCell>
+                        <TableCell className="text-slate-600">{u.whatsapp || '—'}</TableCell>
                         <TableCell>
-                          <Badge variant={u.role === 'admin' ? 'default' : 'outline'}>
-                            {u.role}
-                          </Badge>
+                          {u.role === 'admin' ? (
+                            <Badge className="bg-amber-100 text-amber-800 border-0 gap-1">
+                              <ShieldCheck className="w-3.5 h-3.5" />
+                              Admin
+                            </Badge>
+                          ) : (
+                            <Badge variant="outline" className="text-slate-600 gap-1">
+                              <Shield className="w-3.5 h-3.5" />
+                              Usuario
+                            </Badge>
+                          )}
                         </TableCell>
-                        <TableCell className="text-slate-500 text-sm">
+                        <TableCell className="text-slate-500 text-sm tabular-nums">
                           {u.last_login
-                            ? new Date(u.last_login).toLocaleString()
+                            ? new Date(u.last_login).toLocaleString('es', {
+                                dateStyle: 'short',
+                                timeStyle: 'short',
+                              })
                             : '—'}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="text-right">
                           <Select
                             value={u.role}
                             onValueChange={(value) => handleRoleChange(u.id, value as 'user' | 'admin')}
                             disabled={updatingRole === u.id}
                           >
-                            <SelectTrigger className="w-[120px]">
+                            <SelectTrigger
+                              className={`w-[130px] ml-auto ${
+                                u.role === 'admin'
+                                  ? 'border-amber-200 bg-amber-50/50'
+                                  : 'border-slate-200'
+                              }`}
+                            >
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>

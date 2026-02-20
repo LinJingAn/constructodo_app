@@ -130,6 +130,31 @@ class RPApi {
     }
   }
 
+  async requestPasswordReset(email: string) {
+    try {
+      const response = await this.client.post<{ message: string; reset_link?: string }>(
+        `${this.getBaseURL()}/api/v1/auth/forgot-password`,
+        { email }
+      );
+      return response.data;
+    } catch (error: unknown) {
+      const detail = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      throw new Error(detail || 'Failed to request password reset');
+    }
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      await this.client.post<{ message: string }>(
+        `${this.getBaseURL()}/api/v1/auth/reset-password`,
+        { token, new_password: newPassword }
+      );
+    } catch (error: unknown) {
+      const detail = (error as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+      throw new Error(detail || 'Failed to reset password');
+    }
+  }
+
   async logout() {
     this.clearToken();
     try {

@@ -11,9 +11,11 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import { StarRating } from '@/components/ui/star-rating';
-import { Save, Shield, Star, User } from 'lucide-react';
+import { Save, Shield, Star, User, Lock } from 'lucide-react';
 import { client, UserProfile, CONSTRUCTION_SERVICES } from '@/lib/api';
 import { DEFAULT_AVATAR_URL } from '@/lib/config';
+import { getAPIBaseURL } from '@/lib/config';
+import { getStoredToken } from '@/lib/auth';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -31,6 +33,12 @@ export default function Profile() {
     bio: '',
     services: [] as string[],
   });
+  const [passwordForm, setPasswordForm] = useState({
+    current_password: '',
+    new_password: '',
+    confirm_password: '',
+  });
+  const [changingPassword, setChangingPassword] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -100,6 +108,47 @@ export default function Profile() {
       toast.error('Error al guardar el perfil');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    if (passwordForm.new_password.length < 6) {
+      toast.error('La nueva contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+    if (passwordForm.new_password !== passwordForm.confirm_password) {
+      toast.error('Las contraseñas no coinciden');
+      return;
+    }
+    if (!passwordForm.current_password) {
+      toast.error('Introduce tu contraseña actual');
+      return;
+    }
+    setChangingPassword(true);
+    try {
+      const token = getStoredToken();
+      const res = await fetch(`${getAPIBaseURL()}/api/v1/auth/change-password`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          current_password: passwordForm.current_password,
+          new_password: passwordForm.new_password,
+        }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        toast.error(data.detail || 'Error al cambiar contraseña');
+        return;
+      }
+      toast.success(data.message || 'Contraseña actualizada');
+      setPasswordForm({ current_password: '', new_password: '', confirm_password: '' });
+    } catch {
+      toast.error('Error de conexión');
+    } finally {
+      setChangingPassword(false);
     }
   };
 
@@ -245,6 +294,71 @@ export default function Profile() {
             </CardContent>
           </Card>
         )}
+
+        {/* Change password */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="w-5 h-5" />
+              Cambiar contraseña
+            </CardTitle>
+            <p className="text-sm text-slate-500">
+              Si iniciaste sesión con correo y contraseña, puedes actualizar tu contraseña aquí.
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="current_password">Contraseña actual</Label>
+                <Input
+                  id="current_password"
+                  type="password"
+                  value={passwordForm.current_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, current_password: e.target.value })}
+                  disabled={changingPassword}
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="new_password">Nueva contraseña</Label>
+                <Input
+                  id="new_password"
+                  type="password"
+                  value={passwordForm.new_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, new_password: e.target.value })}
+                  disabled={changingPassword}
+                  placeholder="Mínimo 6 caracteres"
+                  autoComplete="new-password"
+                  minLength={6}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="confirm_password">Confirmar nueva contraseña</Label>
+                <Input
+                  id="confirm_password"
+                  type="password"
+                  value={passwordForm.confirm_password}
+                  onChange={(e) => setPasswordForm({ ...passwordForm, confirm_password: e.target.value })}
+                  disabled={changingPassword}
+                  placeholder="Repite la nueva contraseña"
+                  autoComplete="new-password"
+                  minLength={6}
+                />
+              </div>
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleChangePassword}
+              disabled={changingPassword}
+            >
+              {changingPassword ? 'Guardando…' : 'Cambiar contraseña'}
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Commission Info */}
         <Card className={userType === 'client' ? 'bg-amber-50 border-amber-200' : 'bg-slate-50 border-slate-200'}>

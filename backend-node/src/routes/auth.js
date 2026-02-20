@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { randomUUID } from 'crypto';
+import { randomUUID, randomBytes } from 'crypto';
 import { createRequire } from 'module';
 import { OAuth2Client } from 'google-auth-library';
 
@@ -107,6 +107,81 @@ router.post('/api/v1/auth/email-login', async (req, res) => {
   }
 });
 
+const RESET_TOKEN_EXPIRE_HOURS = 1;
+
+/** POST /api/v1/auth/forgot-password - request password reset; sends link (or returns it for dev) */
+router.post('/api/v1/auth/forgot-password', async (req, res) => {
+  const { email } = req.body || {};
+  if (!email || typeof email !== 'string' || !email.trim()) {
+    return res.status(400).json({ detail: 'Email is required' });
+  }
+  const emailClean = email.trim().toLowerCase();
+  const db = await getClient();
+  try {
+    const r = await db.query(
+      'SELECT id FROM users WHERE LOWER(email) = $1 AND password_hash IS NOT NULL',
+      [emailClean]
+    );
+    const user = r.rows[0];
+    if (!user) {
+      // Do not reveal whether the email exists
+      return res.json({ message: 'Si existe una cuenta con ese correo, recibirás instrucciones para restablecer la contraseña.' });
+    }
+    const token = randomBytes(32).toString('hex');
+    const expiresAt = new Date(Date.now() + RESET_TOKEN_EXPIRE_HOURS * 60 * 60 * 1000);
+    await db.query(
+      'INSERT INTO password_reset_tokens (token, user_id, expires_at) VALUES ($1, $2, $3)',
+      [token, user.id, expiresAt]
+    );
+    const frontend = getFrontendUrl();
+    const resetLink = `${frontend}/reset-password?token=${encodeURIComponent(token)}`;
+    // TODO: send email with resetLink when SMTP is configured (e.g. nodemailer)
+    // For now return link in response (useful for dev; omit in production if you send email)
+    const devReturnLink = process.env.NODE_ENV !== 'production' || process.env.CONSTRUCTODO_DEV_RESET_LINK === '1';
+    return res.json({
+      message: 'Si existe una cuenta con ese correo, recibirás instrucciones para restablecer la contraseña.',
+      ...(devReturnLink ? { reset_link: resetLink } : {}),
+    });
+  } catch (err) {
+    console.error('forgot-password', err);
+    res.status(500).json({ detail: err.message || 'Failed to process request' });
+  } finally {
+    db.release();
+  }
+});
+
+/** POST /api/v1/auth/reset-password - set new password using token */
+router.post('/api/v1/auth/reset-password', async (req, res) => {
+  const { token, new_password } = req.body || {};
+  if (!token || typeof token !== 'string' || !token.trim()) {
+    return res.status(400).json({ detail: 'Token is required' });
+  }
+  if (!new_password || typeof new_password !== 'string' || new_password.length < 6) {
+    return res.status(400).json({ detail: 'Password must be at least 6 characters' });
+  }
+  const tokenClean = token.trim();
+  const db = await getClient();
+  try {
+    const r = await db.query(
+      'SELECT user_id FROM password_reset_tokens WHERE token = $1 AND expires_at > NOW()',
+      [tokenClean]
+    );
+    const row = r.rows[0];
+    if (!row) {
+      return res.status(400).json({ detail: 'Enlace inválido o expirado. Solicita uno nuevo.' });
+    }
+    const passwordHash = await bcrypt.hash(new_password, 10);
+    await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, row.user_id]);
+    await db.query('DELETE FROM password_reset_tokens WHERE token = $1', [tokenClean]);
+    return res.json({ message: 'Contraseña actualizada. Ya puedes iniciar sesión.' });
+  } catch (err) {
+    console.error('reset-password', err);
+    res.status(500).json({ detail: err.message || 'Failed to reset password' });
+  } finally {
+    db.release();
+  }
+});
+
 router.post('/api/v1/auth/google', async (req, res) => {
   const { id_token } = req.body || {};
   if (!id_token) {
@@ -160,6 +235,40 @@ router.post('/api/v1/auth/token/exchange', async (req, res) => {
     return router.handle({ ...req, body: { id_token: platform_token } }, res, () => {});
   }
   return res.status(400).json({ detail: 'platform_token required' });
+});
+
+/** POST /api/v1/auth/change-password - change password for logged-in user (email/password accounts only) */
+router.post('/api/v1/auth/change-password', requireAuth, async (req, res) => {
+  const { current_password, new_password } = req.body || {};
+  if (!current_password || typeof current_password !== 'string') {
+    return res.status(400).json({ detail: 'Contraseña actual es requerida' });
+  }
+  if (!new_password || typeof new_password !== 'string' || new_password.length < 6) {
+    return res.status(400).json({ detail: 'La nueva contraseña debe tener al menos 6 caracteres' });
+  }
+  const db = await getClient();
+  try {
+    const r = await db.query('SELECT id, password_hash FROM users WHERE id = $1', [req.user.id]);
+    const user = r.rows[0];
+    if (!user) {
+      return res.status(401).json({ detail: 'Usuario no encontrado' });
+    }
+    if (!user.password_hash) {
+      return res.status(400).json({ detail: 'Esta cuenta no tiene contraseña (inicio de sesión con Google). No puedes cambiarla aquí.' });
+    }
+    const ok = await bcrypt.compare(current_password, user.password_hash);
+    if (!ok) {
+      return res.status(401).json({ detail: 'Contraseña actual incorrecta' });
+    }
+    const passwordHash = await bcrypt.hash(new_password, 10);
+    await db.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, req.user.id]);
+    return res.json({ message: 'Contraseña actualizada correctamente' });
+  } catch (err) {
+    console.error('change-password', err);
+    return res.status(500).json({ detail: err.message || 'Error al cambiar contraseña' });
+  } finally {
+    db.release();
+  }
 });
 
 /** GET /api/v1/auth/me - return current user; role is read from DB so admin changes apply without re-login */

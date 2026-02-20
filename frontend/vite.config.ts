@@ -74,6 +74,7 @@ export default defineConfig(({ mode }) => ({
             'lucide-react',
           ],
           'query-vendor': ['@tanstack/react-query'],
+          'chart-vendor': ['recharts'],
         },
       },
     },
